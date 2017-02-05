@@ -1,3 +1,15 @@
+-- class icons
+local Icons = {
+	["DRUID"] = "Interface\\AddOns\\BlizzPlates\\img\\class\\ClassIcon_Druid",
+	["HUNTER"] = "Interface\\AddOns\\BlizzPlates\\img\\class\\ClassIcon_Hunter",
+	["MAGE"] = "Interface\\AddOns\\BlizzPlates\\img\\class\\ClassIcon_Mage",
+	["PALADIN"] = "Interface\\AddOns\\BlizzPlates\\img\\class\\ClassIcon_Paladin",
+	["PRIEST"] = "Interface\\AddOns\\BlizzPlates\\img\\class\\ClassIcon_Priest",
+	["ROGUE"] = "Interface\\AddOns\\BlizzPlates\\img\\class\\ClassIcon_Rogue",
+	["SHAMAN"] = "Interface\\AddOns\\BlizzPlates\\img\\class\\ClassIcon_Shaman",
+	["WARLOCK"] = "Interface\\AddOns\\BlizzPlates\\img\\class\\ClassIcon_Warlock",
+	["WARRIOR"] = "Interface\\AddOns\\BlizzPlates\\img\\class\\ClassIcon_Warrior",
+}
 -- config
 pfConfigCreate = CreateFrame("Frame", nil, UIParent)
 pfConfigCreate:RegisterEvent("VARIABLES_LOADED")
@@ -5,6 +17,7 @@ pfConfigCreate:SetScript("OnEvent", function()
   if not pfNameplates_config then pfNameplates_config = { } end
   pfNameplates_config.clickthrough = pfNameplates_config.clickthrough or 0
   pfNameplates_config.raidiconsize = pfNameplates_config.raidiconsize or 24
+  pfNameplates_config.showclass = pfNameplates_config.showclass or 0
   pfNameplates_config.showdebuffs = pfNameplates_config.showdebuffs or 1
   pfNameplates_config.showcastbar = pfNameplates_config.showcastbar or 1
   pfNameplates_config.showcasttext = pfNameplates_config.showcasttext or 0
@@ -35,6 +48,12 @@ function SlashCmdList.SHAGUPLATES(msg)
       DEFAULT_CHAT_FRAME:AddMessage("clickthrough: |cffff5555disabled")
     end
 
+	if pfNameplates_config.showclass == 1 then
+      DEFAULT_CHAT_FRAME:AddMessage("showclass: |cff55ff55enabled")
+    else
+      DEFAULT_CHAT_FRAME:AddMessage("showclass: |cffff5555disabled")
+    end
+	
     if pfNameplates_config.showdebuffs == 1 then
       DEFAULT_CHAT_FRAME:AddMessage("showdebuffs: |cff55ff55enabled")
     else
@@ -85,6 +104,16 @@ function SlashCmdList.SHAGUPLATES(msg)
     pfNameplates_config.raidiconsize = tonumber(commandlist[2])
   end
 
+  if commandlist[1] == "showclass" and commandlist[2] then
+    if tonumber(commandlist[2]) == 1 then
+      DEFAULT_CHAT_FRAME:AddMessage("BlizzardPlates: showclass has been |cff55ff55enabled")
+      pfNameplates_config.showclass = 1
+    else
+      DEFAULT_CHAT_FRAME:AddMessage("BlizzardPlates: showclass has been |cffff5555disabled")
+      pfNameplates_config.showclass = 0
+    end
+  end
+  
   if commandlist[1] == "showdebuffs" and commandlist[2] then
     if tonumber(commandlist[2]) == 1 then
       DEFAULT_CHAT_FRAME:AddMessage("BlizzardPlates: showdebuffs has been |cff55ff55enabled")
@@ -249,6 +278,35 @@ pfNameplates:SetScript("OnUpdate", function()
         local cur = healthbar:GetValue()
         healthbar.hptext:SetText(cur .. " / " .. max .. " ")
       end
+	  
+      -- class icons
+	  if pfNameplates_config.showclass == 1 then
+        if nameplate.classIcon == nil then
+            nameplate.classIcon = nameplate:CreateTexture(nil, "BORDER")
+            nameplate.classIcon:SetTexture(0,0,0,0)
+            nameplate.classIcon:ClearAllPoints();
+            nameplate.classIcon:SetPoint("RIGHT", name, "LEFT", -3, 0);
+            nameplate.classIcon:SetWidth(12);
+            nameplate.classIcon:SetHeight(12);
+        end		
+
+        if nameplate.classIconBorder == nil then
+            nameplate.classIconBorder = nameplate:CreateTexture(nil, "BACKGROUND")
+            nameplate.classIconBorder:SetTexture(0,0,0,0.9)
+            nameplate.classIconBorder:SetPoint("CENTER", nameplate.classIcon, "CENTER", 0, 0);
+            nameplate.classIconBorder:SetWidth(13.5);
+            nameplate.classIconBorder:SetHeight(13.5);
+        end		
+        nameplate.classIconBorder:Hide();
+        nameplate.classIcon:SetTexture(0,0,0,0);
+        
+        if  pfNameplates.players[name:GetText()] ~= nil and nameplate.classIcon:GetTexture() == "Solid Texture" and string.find(nameplate.classIcon:GetTexture(), "Interface") == nil then
+            nameplate.classIcon:SetTexture(Icons[pfNameplates.players[name:GetText()]["class"]]);
+            nameplate.classIcon:SetTexCoord(.078, .92, .079, .937)
+            nameplate.classIcon:SetAlpha(0.9);
+            nameplate.classIconBorder:Show();
+        end
+	  end
 
       -- raidtarget
       raidicon:ClearAllPoints()

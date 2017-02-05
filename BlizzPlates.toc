@@ -1,8 +1,8 @@
 ## Interface: 11200
 ## Title: |cff135cd3Blizzard|cffffffffPlates
 ## Author: Shagu, brotalnia
-## Notes: Castbars and debuffs from ShaguPlates for the default Blizzard nameplates.
-## Version: 1.0
+## Notes: Features from Shagu and Bonho's addons for the default Blizzard nameplates.
+## Version: 2.0
 ## SavedVariables: pfNameplates_config
 castbar.lua
 env\locales_deDE.lua
