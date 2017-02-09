@@ -17,6 +17,7 @@ pfConfigCreate:SetScript("OnEvent", function()
   if not pfNameplates_config then pfNameplates_config = { } end
   pfNameplates_config.clickthrough = pfNameplates_config.clickthrough or 0
   pfNameplates_config.raidiconsize = pfNameplates_config.raidiconsize or 24
+  pfNameplates_config.showrank = pfNameplates_config.showrank or 0
   pfNameplates_config.showclass = pfNameplates_config.showclass or 0
   pfNameplates_config.showdebuffs = pfNameplates_config.showdebuffs or 1
   pfNameplates_config.showcastbar = pfNameplates_config.showcastbar or 1
@@ -48,6 +49,12 @@ function SlashCmdList.SHAGUPLATES(msg)
       DEFAULT_CHAT_FRAME:AddMessage("clickthrough: |cffff5555disabled")
     end
 
+    if pfNameplates_config.showrank == 1 then
+      DEFAULT_CHAT_FRAME:AddMessage("showrank: |cff55ff55enabled")
+    else
+      DEFAULT_CHAT_FRAME:AddMessage("showrank: |cffff5555disabled")
+    end
+    
 	if pfNameplates_config.showclass == 1 then
       DEFAULT_CHAT_FRAME:AddMessage("showclass: |cff55ff55enabled")
     else
@@ -104,6 +111,16 @@ function SlashCmdList.SHAGUPLATES(msg)
     pfNameplates_config.raidiconsize = tonumber(commandlist[2])
   end
 
+  if commandlist[1] == "showrank" and commandlist[2] then
+    if tonumber(commandlist[2]) == 1 then
+      DEFAULT_CHAT_FRAME:AddMessage("BlizzardPlates: showrank has been |cff55ff55enabled")
+      pfNameplates_config.showrank = 1
+    else
+      DEFAULT_CHAT_FRAME:AddMessage("BlizzardPlates: showrank has been |cffff5555disabled")
+      pfNameplates_config.showrank = 0
+    end
+  end
+  
   if commandlist[1] == "showclass" and commandlist[2] then
     if tonumber(commandlist[2]) == 1 then
       DEFAULT_CHAT_FRAME:AddMessage("BlizzardPlates: showclass has been |cff55ff55enabled")
@@ -194,8 +211,10 @@ pfNameplates:SetScript("OnEvent", function()
     if UnitName("target") ~= nil and pfNameplates.players[UnitName("target")] == nil and pfNameplates.targets[UnitName("target")] == nil then
       if UnitIsPlayer("target") then
         local _, class = UnitClass("target")
+        local rankName, rankNumber = GetPVPRankInfo(UnitPVPRank("target"))
         pfNameplates.players[UnitName("target")] = {}
         pfNameplates.players[UnitName("target")]["class"] = class
+        pfNameplates.players[UnitName("target")]["rank"] = rankNumber
       elseif UnitClassification("target") ~= "normal" then
         local elite = UnitClassification("target")
         pfNameplates.mobs[UnitName("target")] = elite
@@ -223,8 +242,10 @@ pfNameplates:SetScript("OnUpdate", function()
         TargetByName(name:GetText(), true)
         if UnitIsPlayer("target") then
           local _, class = UnitClass("target")
+          local rankName, rankNumber = GetPVPRankInfo(UnitPVPRank("target"))
           pfNameplates.players[name:GetText()] = {}
           pfNameplates.players[name:GetText()]["class"] = class
+          pfNameplates.players[name:GetText()]["rank"] = rankNumber
         elseif UnitClassification("target") ~= "normal" then
           local elite = UnitClassification("target")
           pfNameplates.mobs[name:GetText()] = elite
@@ -237,8 +258,10 @@ pfNameplates:SetScript("OnUpdate", function()
       if pfNameplates.players[name:GetText()] == nil and UnitName("mouseover") == name:GetText() and pfNameplates.targets[name:GetText()] == nil then
         if UnitIsPlayer("mouseover") then
           local _, class = UnitClass("mouseover")
+          local rankName, rankNumber = GetPVPRankInfo(UnitPVPRank("mouseover"))
           pfNameplates.players[name:GetText()] = {}
           pfNameplates.players[name:GetText()]["class"] = class
+          pfNameplates.players[name:GetText()]["rank"] = rankNumber
         elseif UnitClassification("mouseover") ~= "normal" then
           local elite = UnitClassification("mouseover")
           pfNameplates.mobs[name:GetText()] = elite
@@ -307,6 +330,30 @@ pfNameplates:SetScript("OnUpdate", function()
             nameplate.classIconBorder:Show();
         end
 	  end
+      
+      -- rank icons
+      if pfNameplates_config.showrank == 1 then
+            if (nameplate.rankIcon == nil) then
+                nameplate.rankIcon = nameplate:CreateTexture(nil, "BORDER")
+            end
+            nameplate.rankIcon:SetTexture(0,0,0,0);
+            
+            if (pfNameplates.players[name:GetText()] ~= nil) and (pfNameplates.players[name:GetText()]["rank"] > 0) and (string.find(nameplate.rankIcon:GetTexture(), "Interface") == nil) then
+                nameplate.rankIcon:SetTexture(format("%s%02d","Interface\\PvPRankBadges\\PvPRank",pfNameplates.players[name:GetText()]["rank"]))
+                nameplate.rankIcon:ClearAllPoints();
+                nameplate.rankIcon:SetPoint("LEFT", name, "RIGHT", 3, 0);
+                --[[
+                if nameplate.classIcon == nil then
+                    nameplate.rankIcon:SetPoint("RIGHT", name, "LEFT", -3, 0);
+                else
+                    nameplate.rankIcon:SetPoint("RIGHT", nameplate.classIcon, "LEFT", -3, 0);
+                end
+                ]]--
+                nameplate.rankIcon:SetWidth(12);
+                nameplate.rankIcon:SetHeight(12);
+                nameplate.rankIcon:Show()
+            end
+      end
 
       -- raidtarget
       raidicon:ClearAllPoints()

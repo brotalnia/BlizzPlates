@@ -2,7 +2,7 @@
 ## Title: |cff135cd3Blizzard|cffffffffPlates
 ## Author: Shagu, brotalnia
 ## Notes: Features from Shagu and Bonho's addons for the default Blizzard nameplates.
-## Version: 2.0
+## Version: 3.0
 ## SavedVariables: pfNameplates_config
 castbar.lua
 env\locales_deDE.lua
