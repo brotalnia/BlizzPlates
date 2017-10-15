@@ -4,6 +4,8 @@ Author: brotalnia
 Version: 3.0
 WoW: 1.12.1
 
+Rename the folder to BlizzPlates.
+
 You can change which features are enabled by typing /blizzardplates in chat.
 
 For more stuff made by me, check out my youtube channel where i upload tutorials and show off my creations.
