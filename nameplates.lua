@@ -297,9 +297,15 @@ pfNameplates:SetScript("OnUpdate", function()
           healthbar.hptext:SetFont("Interface\\AddOns\\BlizzPlates\\fonts\\arial.ttf", 10)
         end
 
-        local min, max = healthbar:GetMinMaxValues()
-        local cur = healthbar:GetValue()
-        healthbar.hptext:SetText(cur .. " / " .. max .. " ")
+        local cur, max
+        if MobHealth3 then
+          cur, max = MobHealth3:GetUnitHealth("target")
+          healthbar.hptext:SetText(cur .. " / " .. max .. " ")
+        else
+          max = healthbar:GetMinMaxValues()
+          cur = healthbar:GetValue()
+          healthbar.hptext:SetText(cur .. " / " .. max .. " ")
+        end
       end
 	  
       -- class icons
